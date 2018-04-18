@@ -1,11 +1,15 @@
 package com.gamicarts.awaytext.sms;
 
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.widget.Toast;
@@ -29,7 +33,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 smsMessageStr += smsBody + "\n";
 
                 SmsManager sender = SmsManager.getDefault();
-                sender.sendTextMessage(address, null, "Hi im away be back later =>", null, null);
+                sender.sendTextMessage(address, null, "Hi im away be back later =)", null, null);
             }
             Toast.makeText(context, smsMessageStr, Toast.LENGTH_SHORT).show();
 

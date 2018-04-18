@@ -8,12 +8,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private boolean awayTextOn = false;
+    private boolean contactOn = false;
     static final Integer READ = 0x1;
+    static final Integer CONTACTS = 0x2;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,25 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 awayTextOn = !awayTextOn;
+            }
+        });
+
+        final Switch textContactsSwitch = findViewById(R.id.textContactsSwitch);
+        //This will be called when someone clicks awayTextButton
+        textContactsSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (contactOn)
+                {
+                    textContactsSwitch.setText("TEXT CONTACTS ONLY: OFF");
+                }
+                else
+                {
+                    textContactsSwitch.setText("TEXT CONTACTS ONLY: ON");
+                    ask(view);
+                }
+
+                contactOn = !contactOn;
             }
         });
     }
@@ -70,6 +94,10 @@ public class MainActivity extends AppCompatActivity {
                 //askForPermission(Manifest.permission.WRITE_SMS,READ);
 
                 break;
+            case R.id.textContactsSwitch:
+                askForPermission(Manifest.permission.READ_CONTACTS,CONTACTS);
+                break;
+
         }
     }
 
@@ -82,7 +110,10 @@ public class MainActivity extends AppCompatActivity {
             switch (requestCode) {
                 //READ
                 case 1:
-                    //What should we do when we have permission?
+                    //What should we do when we have SMS permission?
+                    break;
+                case 2:
+                    //What should we do with read contact permission
                     break;
             }
 

@@ -2,8 +2,5 @@
     <string name="app_name">Away Text</string>
 
     <string name="enter_below">Enter your away message below.</string>
-    <string name="title_activity_app">AppActivity</string>
-    <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
 
 </resources>

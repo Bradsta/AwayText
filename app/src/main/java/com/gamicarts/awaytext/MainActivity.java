@@ -1,6 +1,7 @@
 package com.gamicarts.awaytext;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     void setUp()
     {
-        awayTextOn = readInternalFile("awayTextOn");
-        contactOn = readInternalFile("contactOn");
+        awayTextOn = readInternalFile(MainActivity.this,"awayTextOn");
+        contactOn = readInternalFile(MainActivity.this,"contactOn");
     }
 
     @Override
@@ -118,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean readInternalFile(String buttonReader) {
-        String yourFilePath = MainActivity.this.getFilesDir() + "/" + buttonReader;
+    public static boolean readInternalFile(Context context, String buttonReader) {
+        String yourFilePath = context.getFilesDir() + "/" + buttonReader;
 
         File yourFile = new File( yourFilePath );
         if (yourFile.exists())

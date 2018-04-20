@@ -14,11 +14,9 @@ import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -164,11 +162,8 @@ public class MainActivity extends AppCompatActivity {
     public void ask(View v){
         switch (v.getId()){
             case R.id.awayTextButton:
-                askForPermission(Manifest.permission.READ_SMS,READ);
-                askForPermission(Manifest.permission.SEND_SMS,READ);
-                askForPermission(Manifest.permission.RECEIVE_SMS,READ);
-                //askForPermission(Manifest.permission.WRITE_SMS,READ);
-
+                askForPermission(Manifest.permission.RECEIVE_SMS, READ);
+                askForPermission(Manifest.permission.SEND_SMS, READ);
                 break;
             case R.id.textContactsSwitch:
                 askForPermission(Manifest.permission.READ_CONTACTS,CONTACTS);

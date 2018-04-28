@@ -3,12 +3,16 @@ package com.gamicarts.awaytext;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -17,6 +21,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean contactOn = false;
     static final Integer READ = 0x1;
     static final Integer CONTACTS = 0x2;
+    private Timer timer = new Timer();
+    private final long DELAY = 1000; // in ms
 
     void setUp()
     {
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setUp();
 
         final Button awayTextButton = findViewById(R.id.awayTextButton);
+
         if (awayTextOn)
         {
             awayTextButton.setText("AWAY TEXT: ON");
@@ -67,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         final Switch textContactsSwitch = findViewById(R.id.textContactsSwitch);
-        //This will be called when someone clicks awayTextButton
+        //This will be called when someone clicks contact switch
         textContactsSwitch.setChecked(contactOn);
         textContactsSwitch.setText("TEXT CONTACTS ONLY: " + (contactOn ? "ON" : "OFF"));
 
@@ -88,6 +97,39 @@ public class MainActivity extends AppCompatActivity {
                 writeInternalFile("contactOn", Boolean.toString(contactOn));
             }
         });
+
+        EditText editTextStop = (EditText) findViewById(R.id.awayMessageText);
+        editTextStop.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+            }
+            @Override
+            public void onTextChanged(final CharSequence s, int start, int before,
+                                      int count) {
+                if(timer != null)
+                    timer.cancel();
+            }
+            @Override
+            public void afterTextChanged(final Editable s) {
+                //avoid triggering event when text is too short
+                if (s.length() >= 3) {
+
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            // TODO: do what you need here (refresh list)
+                            EditText text = (EditText)findViewById(R.id.awayMessageText);
+                            String value = text.getText().toString();
+                            writeInternalFile("awayMessage", value);
+                        }
+
+                    }, DELAY);
+                }
+            }
+        });
+
     }
 
     private void writeInternalFile(String name,String data) {
@@ -110,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             writer.append(fileContents);
             writer.flush();
             writer.close();
-            Toast.makeText(MainActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "Saved", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,6 +180,27 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    public static String readEditTextFile(Context context, String buttonReader) {
+        String yourFilePath = context.getFilesDir() + "/" + buttonReader;
+
+        File yourFile = new File( yourFilePath );
+        if (yourFile.exists())
+        {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(yourFile));
+                String info = br.readLine();
+                br.close();
+
+                return info;
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return "I'm away right now, please leave a message after the beep :)\n- Sent by AwayText";
+    }
+
     private void askForPermission(String permission, Integer requestCode) {
         if (ContextCompat.checkSelfPermission(MainActivity.this, permission) != PackageManager.PERMISSION_GRANTED) {
 
@@ -154,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             //Permission Is Granted My Liege
-            Toast.makeText(this, "" + permission + " is already granted.", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "" + permission + " is already granted.", Toast.LENGTH_SHORT).show();
         }
     }
 

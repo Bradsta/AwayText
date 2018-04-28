@@ -10,6 +10,7 @@ import android.provider.ContactsContract;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 
+
 import com.gamicarts.awaytext.MainActivity;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -38,9 +39,11 @@ public class SmsReceiver extends BroadcastReceiver {
 
                     SmsManager sender = SmsManager.getDefault();
 
+
+
                     if (!sendToOnlyContactsOn || contactExists(context, address))
                     {
-                        sender.sendTextMessage(address, null, "Hi im away be back later =)", null, null);
+                        sender.sendTextMessage(address, null, MainActivity.readEditTextFile(context,"awayMessage"), null, null);
                     }
                 }
 

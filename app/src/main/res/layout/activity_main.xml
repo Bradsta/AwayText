@@ -19,7 +19,7 @@
         android:background="@color/colorAlmostBlack"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:text="I'm away right now, please leave a messge after the beep :)\n- Sent by AwayText"
+        android:text="I'm away right now, please leave a message after the beep :)\n- Sent by AwayText"
         android:textColor="@android:color/background_light"
         android:textColorLink="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"

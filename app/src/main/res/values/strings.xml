@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Away Text</string>
+    <string name="channel_name">A.T.S. Channel</string>
+    <string name="channel_description">A.T.S. Channel Description</string>
 
     <string name="enter_below">Enter your away message below.</string>
 

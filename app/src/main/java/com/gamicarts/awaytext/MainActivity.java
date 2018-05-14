@@ -1,19 +1,28 @@
 package com.gamicarts.awaytext;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Handler;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -24,12 +33,16 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.content.Intent.ACTION_MAIN;
+
 public class MainActivity extends AppCompatActivity {
 
     private boolean awayTextOn = false;
     private boolean contactOn = false;
     static final Integer READ = 0x1;
     static final Integer CONTACTS = 0x2;
+    static final String NOTIFICATION = "123";
+    static final Integer NOTIFICATIONID = 0x3;
     private Timer timer = new Timer();
     private final long DELAY = 1000; // in ms
 
@@ -37,12 +50,26 @@ public class MainActivity extends AppCompatActivity {
     {
         awayTextOn = readInternalFile(MainActivity.this,"awayTextOn");
         contactOn = readInternalFile(MainActivity.this,"contactOn");
+        EditText editText = (EditText)findViewById(R.id.awayMessageText);
+        editText.setText(readEditTextFile(MainActivity.this,"awayMessage"), TextView.BufferType.EDITABLE);
+        createNotificationChannel();
+
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        findViewById(R.id.constraintLayout).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                return false;
+            }
+        });
 
         setUp();
 
@@ -72,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
                 awayTextOn = !awayTextOn;
                 writeInternalFile("awayTextOn", Boolean.toString(awayTextOn));
+                createNotification(awayTextOn);
             }
         });
 
@@ -135,15 +163,6 @@ public class MainActivity extends AppCompatActivity {
     private void writeInternalFile(String name,String data) {
         String filename = name;
         String fileContents = data;
-//        FileOutputStream outputStream;
-////
-////        try {
-////            outputStream = openFileOutput(filename, MainActivity.MODE_PRIVATE);
-////            outputStream.write(fileContents.getBytes());
-////            outputStream.close();
-////        } catch (Exception e) {
-////            e.printStackTrace();
-////        }
         File file = new File(MainActivity.this.getFilesDir(), filename);
 
         try {
@@ -255,6 +274,53 @@ public class MainActivity extends AppCompatActivity {
         }else{
             Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void createNotification(boolean on) {
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, NOTIFICATION)
+                .setSmallIcon(R.drawable.ic_stat_onesignal_default)
+                .setOngoing(true)
+                .setShowWhen(false)
+                .setContentTitle("A.T.S. is active")
+                .setContentText("Tap to manage AwayTextSystem")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Tap to manage AwayTextSystem"))
+                .setContentIntent(pendingIntent)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_LOW);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        if (on) {
+            notificationManager.notify(NOTIFICATIONID, mBuilder.build());
+
+        } else {
+            notificationManager.cancel(NOTIFICATIONID);
+        }
+
     }
 
 }

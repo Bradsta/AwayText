@@ -43,7 +43,7 @@ public class SmsReceiver extends BroadcastReceiver {
 
                     if (!sendToOnlyContactsOn || contactExists(context, address))
                     {
-                        sender.sendTextMessage(address, null, MainActivity.readEditTextFile(context,"awayMessage"), null, null);
+                        sender.sendTextMessage(address, null, MainActivity.readEditTextFile(context,"awayMessage") + "\n-Sent by AwayTextSystem", null, null);
                     }
                 }
 
